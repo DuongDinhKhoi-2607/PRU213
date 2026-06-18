@@ -7134,7 +7134,7 @@
     },
     "m_SourceType": 0,
     "m_FunctionName": "MainLight",
-    "m_FunctionSource": "ed520734c9dbe4349b81aa7056870bdd",
+    "m_FunctionSource": "Assets/Idyllic Fantasy Nature/Shader/CustomLighting.hlsl",
     "m_FunctionBody": "Enter function body here..."
 }
 
