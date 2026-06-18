@@ -15,47 +15,40 @@ public class BuildRoadsMenu
 
         TerrainData terrainData = terrain.terrainData;
 
-        // 1. Setup Terrain Layers if needed
-        if (terrainData.terrainLayers == null || terrainData.terrainLayers.Length < 3)
+        // 1. Setup Terrain Layers
+        string grassPath = "Assets/Idyllic Fantasy Nature/Textures/Ground/Grass/Grass_Albedo.png";
+        string cityGroundPath = "Assets/Naganeupseong/Resource/Textures/Ground/T_Ground01a_BC.png";
+        string roadPath = "Assets/Naganeupseong/Resource/Textures/Ground/T_Ground02a_BC.png";
+
+        Texture2D grassTex = AssetDatabase.LoadAssetAtPath<Texture2D>(grassPath);
+        Texture2D cityGroundTex = AssetDatabase.LoadAssetAtPath<Texture2D>(cityGroundPath);
+        Texture2D roadTex = AssetDatabase.LoadAssetAtPath<Texture2D>(roadPath);
+
+        if (grassTex == null || roadTex == null || cityGroundTex == null)
         {
-            string grassPath = "Assets/Idyllic Fantasy Nature/Textures/Ground/Grass/Grass_Albedo.png";
-            string cityGroundPath = "Assets/Naganeupseong/Resource/Textures/Ground/T_Ground01a_BC.png";
-            string roadPath = "Assets/Namhansanseong/Textures/Landscape/Road.png";
-
-            Texture2D grassTex = AssetDatabase.LoadAssetAtPath<Texture2D>(grassPath);
-            Texture2D cityGroundTex = AssetDatabase.LoadAssetAtPath<Texture2D>(cityGroundPath);
-            Texture2D roadTex = AssetDatabase.LoadAssetAtPath<Texture2D>(roadPath);
-
-            if (grassTex == null || roadTex == null || cityGroundTex == null)
-            {
-                Debug.LogError("Could not find required ground textures.");
-                return;
-            }
-
-            TerrainLayer grassLayer = new TerrainLayer();
-            grassLayer.diffuseTexture = grassTex;
-            grassLayer.tileSize = new Vector2(15, 15);
-
-            TerrainLayer cityGroundLayer = new TerrainLayer();
-            cityGroundLayer.diffuseTexture = cityGroundTex;
-            cityGroundLayer.tileSize = new Vector2(15, 15);
-
-            TerrainLayer roadLayer = new TerrainLayer();
-            roadLayer.diffuseTexture = roadTex;
-            roadLayer.tileSize = new Vector2(10, 10);
-
-            terrainData.terrainLayers = new TerrainLayer[] { grassLayer, cityGroundLayer, roadLayer };
+            Debug.LogError("Could not find required ground textures.");
+            return;
         }
+
+        TerrainLayer grassLayer = new TerrainLayer();
+        grassLayer.diffuseTexture = grassTex;
+        grassLayer.tileSize = new Vector2(15, 15);
+
+        TerrainLayer cityGroundLayer = new TerrainLayer();
+        cityGroundLayer.diffuseTexture = cityGroundTex;
+        cityGroundLayer.tileSize = new Vector2(15, 15);
+
+        TerrainLayer roadLayer = new TerrainLayer();
+        roadLayer.diffuseTexture = roadTex;
+        roadLayer.tileSize = new Vector2(10, 10);
+
+        terrainData.terrainLayers = new TerrainLayer[] { grassLayer, cityGroundLayer, roadLayer };
 
         // 2. Paint Alphamaps
         int mapWidth = terrainData.alphamapWidth;
         int mapHeight = terrainData.alphamapHeight;
         float[,,] splatmapData = terrainData.GetAlphamaps(0, 0, mapWidth, mapHeight);
 
-        // Define road parameters
-        float roadWidth = 2.5f;
-        float fadeWidth = 1.5f;
-        
         // Terrain position and size
         Vector3 terrainPos = terrain.transform.position;
         Vector3 terrainSize = terrainData.size;
@@ -67,9 +60,6 @@ public class BuildRoadsMenu
                 // Convert splatmap coordinate to world coordinate
                 float worldX = terrainPos.x + ((float)x / mapWidth) * terrainSize.x;
                 float worldZ = terrainPos.z + ((float)y / mapHeight) * terrainSize.z;
-
-                float distToRoad = float.MaxValue;
-                float radius = Mathf.Sqrt(worldX * worldX + worldZ * worldZ);
 
                 float maxDistFromCenter = Mathf.Max(Mathf.Abs(worldX), Mathf.Abs(worldZ));
                 float grassWeight = 1f;
@@ -89,33 +79,7 @@ public class BuildRoadsMenu
                         cityWeight = 1f - grassWeight;
                     }
 
-                    // A. Main vertical road (North-South)
-                    distToRoad = Mathf.Min(distToRoad, Mathf.Abs(worldX));
-
-                    // B. Main horizontal road (East-West)
-                    distToRoad = Mathf.Min(distToRoad, Mathf.Abs(worldZ));
-
-                    // C. Grid secondary roads
-                    float[] gridLines = { -48f, -24f, 24f, 48f };
-                    foreach (float line in gridLines)
-                    {
-                        // Vertical grid lines
-                        distToRoad = Mathf.Min(distToRoad, Mathf.Abs(worldX - line));
-                        // Horizontal grid lines
-                        distToRoad = Mathf.Min(distToRoad, Mathf.Abs(worldZ - line));
-                    }
-                    
-                    if (distToRoad < roadWidth)
-                    {
-                        roadWeight = 1f;
-                    }
-                    else if (distToRoad < roadWidth + fadeWidth)
-                    {
-                        roadWeight = 1f - ((distToRoad - roadWidth) / fadeWidth);
-                    }
-
-                    // Road weight overrides city weight, but leaves grass alone
-                    cityWeight *= (1f - roadWeight);
+                    roadWeight = 0f;
                 }
 
                 // Apply to splatmap

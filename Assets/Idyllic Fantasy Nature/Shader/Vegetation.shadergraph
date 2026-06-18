@@ -5115,10 +5115,10 @@
     "m_Guid": {
         "m_GuidSerialized": "8f9338f3-7903-471d-b1c8-8798675b07aa"
     },
-    "m_Name": "_MAIN_LIGHT_SHADOWS_CASCADE",
+    "m_Name": "_MAIN_LIGHT_SHADOWS_CASCADE_CUSTOM",
     "m_DefaultRefNameVersion": 1,
-    "m_RefNameGeneratedByDisplayName": "_MAIN_LIGHT_SHADOWS_CASCADE",
-    "m_DefaultReferenceName": "_MAIN_LIGHT_SHADOWS_CASCADE",
+    "m_RefNameGeneratedByDisplayName": "_MAIN_LIGHT_SHADOWS_CASCADE_CUSTOM",
+    "m_DefaultReferenceName": "_MAIN_LIGHT_SHADOWS_CASCADE_CUSTOM",
     "m_OverrideReferenceName": "",
     "m_GeneratePropertyBlock": false,
     "m_UseCustomSlotLabel": false,
@@ -12266,10 +12266,10 @@
     "m_Guid": {
         "m_GuidSerialized": "bbfcf844-f495-4d6a-95cd-5202ec9a2547"
     },
-    "m_Name": "_MAIN_LIGHT_SHADOWS",
+    "m_Name": "_MAIN_LIGHT_SHADOWS_CUSTOM",
     "m_DefaultRefNameVersion": 1,
-    "m_RefNameGeneratedByDisplayName": "_MAIN_LIGHT_SHADOWS",
-    "m_DefaultReferenceName": "_MAIN_LIGHT_SHADOWS",
+    "m_RefNameGeneratedByDisplayName": "_MAIN_LIGHT_SHADOWS_CUSTOM",
+    "m_DefaultReferenceName": "_MAIN_LIGHT_SHADOWS_CUSTOM",
     "m_OverrideReferenceName": "",
     "m_GeneratePropertyBlock": false,
     "m_UseCustomSlotLabel": false,
