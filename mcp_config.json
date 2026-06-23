@@ -3,7 +3,7 @@
     "mcp-unity": {
       "command": "node",
       "args": [
-        "E:/PRU213/pru213_game-dev-nhanHuynh/UnityMCP/Server~/build/index.js"
+        "d:/PRU213/UnityMCP/Server~/build/index.js"
       ]
     }
   }

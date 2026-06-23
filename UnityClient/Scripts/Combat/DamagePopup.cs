@@ -36,7 +36,7 @@ public class DamagePopup : MonoBehaviour, IPooledObject
             }
         }
 
-        popupObj = new GameObject("DamagePopup");
+        popupObj = new GameObject("DamagePopup", typeof(RectTransform));
         DamagePopup popup = popupObj.AddComponent<DamagePopup>();
         popup.Setup(damage, critical);
         return popup;
@@ -45,6 +45,10 @@ public class DamagePopup : MonoBehaviour, IPooledObject
     void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
+        if (rectTransform == null)
+        {
+            rectTransform = gameObject.AddComponent<RectTransform>();
+        }
     }
 
     void Setup(int damage, bool critical)
@@ -63,7 +67,10 @@ public class DamagePopup : MonoBehaviour, IPooledObject
         {
             parentCanvas = canvas;
             transform.SetParent(canvas.transform, false);
-            rectTransform.anchoredPosition = WorldToCanvasPosition(canvas, transform.position);
+            if (rectTransform != null)
+            {
+                rectTransform.anchoredPosition = WorldToCanvasPosition(canvas, transform.position);
+            }
         }
 
         textMesh.text = damage.ToString();
@@ -108,7 +115,7 @@ public class DamagePopup : MonoBehaviour, IPooledObject
         velocity.y -= 2f * Time.deltaTime;
         transform.position = pos;
 
-        if (parentCanvas != null)
+        if (parentCanvas != null && rectTransform != null)
         {
             rectTransform.anchoredPosition = WorldToCanvasPosition(parentCanvas, pos);
         }
