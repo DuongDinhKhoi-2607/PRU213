@@ -28,6 +28,9 @@ public class PlayerMovement : MonoBehaviour
     private bool _isAttacking = false;
     private float _attackCooldownTimer = 0f;
 
+    public bool HasSword => _hasSword;
+    public string EquippedSwordName => _equippedSword != null ? _equippedSword.name.Replace("(Clone)", "").Trim() : "Không có";
+
     private void Start()
     {
         _characterController = GetComponent<CharacterController>();
