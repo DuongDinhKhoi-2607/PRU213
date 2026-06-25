@@ -1,53 +1,60 @@
-# Hướng Dẫn Sửa Lỗi Thiếu File 3D (Đỏ File / Hình Hộp Xanh) Bằng Git LFS
+# HƯỚNG DẪN CÀI ĐẶT DỰ ÁN VỚI GIT LFS (LARGE FILE STORAGE)
 
-Dự án này sử dụng **Git LFS (Large File Storage)** để quản lý các tệp tin 3D lớn (như các mô hình nhân vật `.fbx` và `.glb` vượt quá giới hạn 100MB của GitHub).
+Dự án này sử dụng **Git LFS** để quản lý các file lớn (như model 3D `.fbx`, `.glb` có dung lượng trên 100MB) nhằm vượt qua giới hạn dung lượng của GitHub.
 
-Nếu bạn hoặc bạn bè của bạn tải dự án về mà gặp lỗi **chữ đỏ trong Unity**, hoặc các mô hình nhân vật bị hiển thị dưới dạng **hình hộp màu xanh** (file bị hỏng/thiếu), đó là do Git chưa tải về các tệp tin nhị phân thực tế mà chỉ mới tải về các tệp tin text pointer (tệp tin trỏ liên kết).
+Khi đẩy code (push) lên GitHub, dữ liệu thực tế của các file lớn này đã được tải lên máy chủ lưu trữ LFS của GitHub an toàn. Trên GitHub chỉ lưu các file text pointer rất nhỏ để tham chiếu.
 
-Hãy làm theo các bước dưới đây để sửa lỗi này rất đơn giản:
+Dưới đây là hướng dẫn chi tiết dành cho người mới khi tải (clone/pull) dự án này về để đảm bảo không bị lỗi mô hình hộp màu xanh (generic boxes) trong Unity.
 
 ---
 
-## 🛠️ Hướng Dẫn Sửa Lỗi Nhanh (Chỉ làm 1 lần)
+## TRƯỜNG HỢP 1: TẢI (CLONE) DỰ ÁN MỚI HOÀN TOÀN
 
-### Bước 1: Tải và cài đặt Git LFS trên máy tính
-Nếu máy của bạn chưa cài đặt Git LFS, Git sẽ không thể tải được file mô hình thực tế.
-1. Truy cập trang chủ Git LFS: [https://git-lfs.com/](https://git-lfs.com/)
-2. Bấm **Download** và cài đặt tệp tin vừa tải về (chỉ cần bấm Next cho đến khi hoàn thành).
+Nếu bạn là thành viên mới và chuẩn bị tải dự án về máy lần đầu, hãy làm theo các bước sau:
 
-### Bước 2: Kích hoạt LFS trong thư mục dự án
-1. Mở cửa sổ **Terminal** (CMD, PowerShell, hoặc Git Bash) tại thư mục gốc của dự án `PRU213` trên máy bạn.
-2. Chạy lệnh sau để kích hoạt:
+### Bước 1: Cài đặt Git LFS trên máy tính của bạn
+* **Windows**: Nếu bạn cài đặt Git cho Windows bản mới, Git LFS thường đã có sẵn. Nếu chưa, hãy tải installer từ [git-lfs.github.com](https://git-lfs.github.com/) và chạy cài đặt.
+* **macOS**: Cài đặt qua Homebrew bằng lệnh:
+  ```bash
+  brew install git-lfs
+  ```
+
+### Bước 2: Kích hoạt Git LFS trên máy tính (Chỉ cần làm 1 lần duy nhất)
+Mở terminal (PowerShell, Command Prompt hoặc Git Bash) và chạy lệnh:
+```bash
+git lfs install
+```
+*(Nếu thấy thông báo `Git LFS initialized.` tức là đã thành công).*
+
+### Bước 3: Clone dự án bình thường
+Bây giờ, bạn tiến hành clone dự án về máy. Git LFS sẽ tự động nhận diện các file lớn và tải toàn bộ dữ liệu 3D thực tế về máy của bạn cùng lúc:
+```bash
+git clone https://github.com/DuongDinhKhoi-2607/PRU213.git
+```
+Sau khi clone xong, bạn có thể mở Unity lên chơi ngay mà không gặp bất kỳ lỗi nào!
+
+---
+
+## TRƯỜNG HỢP 2: ĐÃ CLONE DỰ ÁN NHƯNG BỊ LỖI HÌNH HỘP MÀU XANH / THIẾU FILE 3D
+
+Nếu bạn đã clone dự án về trước đó mà chưa cài đặt Git LFS, các file mô hình 3D trong Unity sẽ bị lỗi màu đỏ hoặc hiện hình hộp màu xanh (do Git chỉ tải về file text pointer nhỏ). 
+
+Để sửa lỗi này, hãy thực hiện các bước sau ngay tại thư mục dự án của bạn:
+
+1. Mở terminal tại thư mục dự án (`PRU213`).
+2. Chạy lệnh kích hoạt LFS:
    ```bash
    git lfs install
    ```
-   *(Nếu thấy thông báo `Git LFS initialized.` là thành công).*
-
-### Bước 3: Đồng bộ và tải các file 3D thực tế về máy
-Chạy lệnh sau để yêu cầu Git tải về toàn bộ các tệp tin 3D nhị phân dung lượng lớn:
-```bash
-git lfs pull
-```
-hoặc:
-```bash
-git lfs checkout
-```
-*Hệ thống sẽ tải xuống khoảng 1.4 GB dữ liệu mô hình thực tế và tự động ghi đè lên thư mục Unity của bạn.*
-
-### Bước 4: Mở lại Unity
-* Mở hoặc click chuột vào cửa sổ Unity Editor.
-* Unity sẽ tự động phát hiện các tệp tin `.fbx` và `.glb` đã được khôi phục đầy đủ dữ liệu và tiến hành **Re-import (nhập lại)**.
-* Chờ vài giây, tất cả lỗi đỏ và hình hộp xanh sẽ biến mất hoàn toàn!
+3. Chạy lệnh kéo (pull) toàn bộ dữ liệu file lớn thực tế về máy:
+   ```bash
+   git lfs pull
+   ```
+   *Lệnh này sẽ tự động tải các file `.fbx`, `.glb` thực tế và ghi đè lên các tệp pointer.*
+4. Quay lại Unity, Unity sẽ tự động nhập lại (re-import) mô hình và mọi lỗi sẽ biến mất!
 
 ---
 
-## 📦 Cách Tải (Clone) Dự Án Đúng Chuẩn Từ Đầu
-
-Để tránh bị lỗi ngay từ đầu khi tải dự án về, bạn nên sử dụng lệnh Git Clone thay vì tải file ZIP trực tiếp.
-
-1. Hãy chắc chắn máy bạn đã cài Git LFS (Bước 1 ở trên).
-2. Mở Terminal và clone dự án bằng lệnh:
-   ```bash
-   git clone -b vy https://github.com/DuongDinhKhoi-2607/PRU213.git
-   ```
-   *(Git sẽ tự động tải cả code và toàn bộ tệp tin LFS lớn cùng một lúc, tải xong mở Unity lên là chơi được ngay mà không cần chạy thêm lệnh nào khác).*
+## MỘT SỐ LƯU Ý KHI LÀM VIỆC NHÓM
+* **Không cần commit lại**: Khi bạn sửa code hoặc cập nhật mô hình, hãy cứ commit và push bình thường. Git LFS sẽ tự động xử lý tách biệt file code lên Git và file 3D lên LFS cho bạn.
+* **Kiểm tra trạng thái**: Bạn có thể gõ lệnh `git lfs status` để xem các file lớn nào đang được quản lý.
