@@ -64,19 +64,32 @@ public class LootItem : MonoBehaviour
             isReadyForPickup = false;
             isPopping = true;
             
+            // Tạm thời tắt các collider của chính mình để tránh tia Raycast tự đâm trúng bản thân
+            foreach (var c in colliders) if (c != null) c.enabled = false;
+
             // Tìm cao độ mặt đất bên dưới bằng Raycast để biết điểm dừng khi rơi
             groundY = transform.position.y - 0.5f; // Mức dự phòng
             RaycastHit hit;
-            if (Physics.Raycast(transform.position + Vector3.up * 2f, Vector3.down, out hit, 15f))
+            if (Physics.Raycast(transform.position + Vector3.up * 2f, Vector3.down, out hit, 25f))
             {
-                // Chỉ lấy mặt đất (Terrain hoặc các vật cản môi trường tĩnh)
-                if (!hit.collider.CompareTag("Player") && !hit.collider.name.Contains("Wolf") && !hit.collider.name.Contains("Linh Thú"))
+                // Chỉ lấy mặt đất (Terrain hoặc các vật cản môi trường tĩnh), bỏ qua người chơi và quái vật
+                string colName = hit.collider.name.ToLower();
+                if (!hit.collider.CompareTag("Player") && 
+                    !colName.Contains("player") && 
+                    !colName.Contains("wolf") && 
+                    !colName.Contains("linh thú") && 
+                    !colName.Contains("boss") && 
+                    !colName.Contains("enemy") && 
+                    !colName.Contains("uminh"))
                 {
                     groundY = hit.point.y;
                 }
             }
 
-            // Thiết lập vận tốc ban đầu để bay vòng lên (giả lập văng)
+            // Bật lại các collider sau khi đã lấy xong vị trí mặt đất
+            foreach (var c in colliders) if (c != null) c.enabled = true;
+
+            // Thiết lập vận tốc ban đầu để bay vòng lên (giả làm văng)
             velocity = new Vector3(
                 Random.Range(-1.5f, 1.5f),
                 Random.Range(4f, 5.5f),
