@@ -131,6 +131,20 @@ public class BossController : MonoBehaviour, IDamageable
                 ChangeState(BossState.Chasing);
             }
         }
+
+        // Áp dụng trọng lực liên tục cho Boss ở mọi trạng thái hoạt động (tránh lỗi lơ lửng trên không)
+        if (currentState != BossState.Dead && charController != null)
+        {
+            if (!charController.isGrounded)
+            {
+                velocity.y += gravity * Time.deltaTime;
+            }
+            else
+            {
+                velocity.y = -2f;
+            }
+            charController.Move(velocity * Time.deltaTime);
+        }
     }
 
     IEnumerator SpawnSequence()
@@ -146,11 +160,6 @@ public class BossController : MonoBehaviour, IDamageable
     void UpdateIdle()
     {
         if (animator != null) animator.SetFloat("Speed", 0f);
-
-        if (specialTimer <= 0f)
-        {
-            TrySpecialAbility();
-        }
 
         if (target != null)
         {
@@ -174,15 +183,11 @@ public class BossController : MonoBehaviour, IDamageable
 
         if (animator != null) animator.SetFloat("Speed", 1f);
 
-        if (!charController.isGrounded)
+        // Tuyệt chiêu chỉ kích hoạt khi Boss đang đuổi theo chiến đấu với người chơi
+        if (specialTimer <= 0f)
         {
-            velocity.y += gravity * Time.deltaTime;
+            TrySpecialAbility();
         }
-        else
-        {
-            velocity.y = -2f;
-        }
-        charController.Move(velocity * Time.deltaTime);
     }
 
     void UpdateAttack()

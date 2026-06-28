@@ -152,6 +152,20 @@ public class BossController : MonoBehaviour, IDamageable
                 }
             }
         }
+
+        // Áp dụng trọng lực liên tục cho Boss ở mọi trạng thái hoạt động (tránh lỗi lơ lửng trên không)
+        if (currentState != BossState.Dead && charController != null)
+        {
+            if (!charController.isGrounded)
+            {
+                velocity.y += gravity * Time.deltaTime;
+            }
+            else
+            {
+                velocity.y = -2f;
+            }
+            charController.Move(velocity * Time.deltaTime);
+        }
     }
 
     IEnumerator SpawnSequence()
@@ -168,11 +182,6 @@ public class BossController : MonoBehaviour, IDamageable
     {
         if (animator != null) animator.SetFloat("Speed", 0f);
 
-        if (specialTimer <= 0f)
-        {
-            TrySpecialAbility();
-        }
-
         // Tầm phát hiện quái được xử lý tập trung trong hàm Update() ở trên
     }
 
@@ -188,15 +197,11 @@ public class BossController : MonoBehaviour, IDamageable
 
         if (animator != null) animator.SetFloat("Speed", 1f);
 
-        if (!charController.isGrounded)
+        // Tuyệt chiêu chỉ kích hoạt khi Boss đang đuổi theo chiến đấu với người chơi
+        if (specialTimer <= 0f)
         {
-            velocity.y += gravity * Time.deltaTime;
+            TrySpecialAbility();
         }
-        else
-        {
-            velocity.y = -2f;
-        }
-        charController.Move(velocity * Time.deltaTime);
     }
 
     void UpdateAttack()
@@ -216,9 +221,7 @@ public class BossController : MonoBehaviour, IDamageable
 
         if (animator != null) animator.SetTrigger("Attack");
         attackTimer = attackCooldown;
-
-        Debug.Log($"[Boss] {data?.bossName} tấn công: {attackDamage} damage!");
-
+        // Debug.Log($"[Boss] {data?.bossName} tấn công: {attackDamage} damage!");
         ChangeState(BossState.Chasing);
     }
 
@@ -300,9 +303,7 @@ public class BossController : MonoBehaviour, IDamageable
                 pc?.TakeDamage(aoeDamage);
             }
         }
-
-        Debug.Log($"[Boss] AOE Attack! Radius: {aoeRadius}");
-
+        // Debug.Log($"[Boss] AOE Attack! Radius: {aoeRadius}");
         yield return new WaitForSeconds(0.5f);
         ChangeState(BossState.Idle);
     }
@@ -339,8 +340,7 @@ public class BossController : MonoBehaviour, IDamageable
                 }
             }
         }
-
-        Debug.Log("[Boss] Triệu hồi quái vật!");
+        // Debug.Log("[Boss] Triệu hồi quái vật!");
         yield return new WaitForSeconds(0.5f);
         ChangeState(BossState.Idle);
     }

@@ -15,7 +15,7 @@ MonoBehaviour:
   bossName: Vu Than Mien Tan Sat
   bossID: 4
   requiredTier: 4
-  maxHealth: 2000
+  maxHealth: 250
   moveSpeed: 4
   attackDamage: 75
   attackRange: 4.5
