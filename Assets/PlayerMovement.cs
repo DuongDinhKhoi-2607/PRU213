@@ -198,6 +198,16 @@ public class PlayerMovement : MonoBehaviour
                     pc.stats.tinCount += 1;
                     Debug.Log($"<color=gold>[Hệ thống]</color> +1 Thiếc! Tổng số Thiếc hiện có: {pc.stats.tinCount}");
                 }
+                else if (nameLower.Contains("đồng thau") || nameLower.Contains("ingot") || nameLower.Contains("thỏi") || nameLower.Contains("thoi"))
+                {
+                    pc.stats.bronzeIngot += 1;
+                    Debug.Log($"<color=gold>[Hệ thống]</color> +1 Thỏi Đồng Thau! Tổng số hiện có: {pc.stats.bronzeIngot}");
+                }
+                else if (nameLower.Contains("linh khí") || nameLower.Contains("linh khi") || nameLower.Contains("stone") || nameLower.Contains("crystal"))
+                {
+                    pc.stats.spiritualStone += 1;
+                    Debug.Log($"<color=gold>[Hệ thống]</color> +1 Đá Linh Khí! Tổng số hiện có: {pc.stats.spiritualStone}");
+                }
                 else if (nameLower.Contains("đồng") || nameLower.Contains("metal") || nameLower.Contains("copper") || nameLower.Contains("ore"))
                 {
                     pc.stats.copperCount += 5;
@@ -244,7 +254,7 @@ public class PlayerMovement : MonoBehaviour
         EquipWeapon(_swordPrefab, _swordOffset, _swordRotation, Vector3.one);
     }
 
-    private void EquipWeapon(GameObject weaponPrefabToEquip, Vector3 offset, Vector3 rotation, Vector3 scale)
+    public void EquipWeapon(GameObject weaponPrefabToEquip, Vector3 offset, Vector3 rotation, Vector3 scale)
     {
         _hasSword = true;
 

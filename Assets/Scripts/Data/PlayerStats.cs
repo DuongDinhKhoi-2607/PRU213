@@ -33,6 +33,7 @@ public class PlayerStats : ScriptableObject
     public int tinCount = 0;
     public int bronzeIngot = 0;
     public int turtleShell = 0;
+    public int spiritualStone = 0; // Đá Linh Khí cổ xưa
 
     [Header("Tier Bonuses")]
     public float tierHealthBonus = 0f;
@@ -114,6 +115,7 @@ public class PlayerStats : ScriptableObject
         clone.tinCount = this.tinCount;
         clone.bronzeIngot = this.bronzeIngot;
         clone.turtleShell = this.turtleShell;
+        clone.spiritualStone = this.spiritualStone;
         clone.tierHealthBonus = this.tierHealthBonus;
         clone.tierDamageBonus = this.tierDamageBonus;
         clone.tierDefenseBonus = this.tierDefenseBonus;

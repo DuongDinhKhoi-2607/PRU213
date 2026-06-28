@@ -18,10 +18,12 @@ public class InventoryUI : MonoBehaviour
     private TextMeshProUGUI _turtleShellText;
     private TextMeshProUGUI _bronzeIngotText;
     private TextMeshProUGUI _weaponText;
+    private TextMeshProUGUI _spiritualStoneText;
 
     private PlayerStats _stats;
     private PlayerMovement _playerMovement;
     private bool _isOpen = false;
+    public bool IsOpen => _isOpen;
 
     // Tự động khởi tạo ngay sau khi Scene được load mà không cần người dùng kéo thả script thủ công
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -55,6 +57,19 @@ public class InventoryUI : MonoBehaviour
         if (Input.GetKeyDown(_toggleKey) || Input.GetKeyDown(_toggleKeyAlternative))
         {
             ToggleInventory();
+        }
+
+        if (_isOpen)
+        {
+            // Cưỡng ép mở khóa chuột và hiện chuột mỗi khung hình khi túi đồ đang mở để đè lên các script khác
+            if (Cursor.lockState != CursorLockMode.None)
+            {
+                Cursor.lockState = CursorLockMode.None;
+            }
+            if (!Cursor.visible)
+            {
+                Cursor.visible = true;
+            }
         }
     }
 
@@ -123,58 +138,137 @@ public class InventoryUI : MonoBehaviour
         Transform existingButton = parent.transform.Find("BagButton");
         if (existingButton != null)
         {
-            _bagButton = existingButton.gameObject;
-            Button btn = _bagButton.GetComponent<Button>();
-            if (btn != null)
-            {
-                btn.onClick.RemoveAllListeners();
-                btn.onClick.AddListener(ToggleInventory);
-            }
-            return;
+            Destroy(existingButton.gameObject);
         }
 
         _bagButton = new GameObject("BagButton", typeof(RectTransform));
         _bagButton.transform.SetParent(parent.transform, false);
 
         RectTransform rect = _bagButton.GetComponent<RectTransform>();
-        // Neo ở góc dưới bên phải màn hình
-        rect.anchorMin = new Vector2(1f, 0f);
-        rect.anchorMax = new Vector2(1f, 0f);
-        rect.pivot = new Vector2(1f, 0f);
-        rect.anchoredPosition = new Vector2(-150f, 25f); // Cách lề phải 150px, lề dưới 25px
-        rect.sizeDelta = new Vector2(65f, 65f);
+        // Neo ở góc dưới bên trái màn hình (gần đầu ông lão màu trắng)
+        rect.anchorMin = new Vector2(0f, 0f);
+        rect.anchorMax = new Vector2(0f, 0f);
+        rect.pivot = new Vector2(0f, 0f);
+        rect.anchoredPosition = new Vector2(100f, 30f); // Lệch sang phải 100px, cách đáy 30px
+        rect.sizeDelta = new Vector2(45f, 45f); // Làm icon nhỏ xinh hơn (45x45)
 
-        // Nền nút thiết kế kính mờ sang trọng
-        Image img = _bagButton.AddComponent<Image>();
-        img.color = new Color(0.12f, 0.12f, 0.16f, 0.9f);
+        // Nền tảng click tàng hình bao phủ toàn bộ vùng nút để đảm bảo click chuột luôn nhạy
+        Image btnImg = _bagButton.AddComponent<Image>();
+        btnImg.color = new Color(0f, 0f, 0f, 0f); // Trong suốt hoàn toàn
+        btnImg.raycastTarget = true; // Bắt sự kiện click chuột
+
+        // 1. Tạo vòng nền phát quang phía sau (Glow Background)
+        GameObject bgObj = new GameObject("Background", typeof(RectTransform));
+        bgObj.transform.SetParent(_bagButton.transform, false);
+        Image bgImg = bgObj.AddComponent<Image>();
+        bgImg.color = new Color(0.12f, 0.12f, 0.16f, 0.6f); // Kính mờ tối nhẹ
+        bgImg.raycastTarget = false; // Bỏ qua raycast để nút cha bắt nhận tốt hơn
         
-        // Bo viền vàng hoàng kim
-        Outline outline = _bagButton.AddComponent<Outline>();
-        outline.effectColor = new Color(1f, 0.84f, 0f, 0.8f);
-        outline.effectDistance = new Vector2(1.5f, -1.5f);
+        RectTransform bgRect = bgObj.GetComponent<RectTransform>();
+        bgRect.anchorMin = Vector2.zero;
+        bgRect.anchorMax = Vector2.one;
+        bgRect.sizeDelta = Vector2.zero;
 
-        // Icon hiển thị trên nút
-        GameObject textObj = new GameObject("Text", typeof(RectTransform));
-        textObj.transform.SetParent(_bagButton.transform, false);
-        TextMeshProUGUI txt = textObj.AddComponent<TextMeshProUGUI>();
-        txt.text = "<size=22>🎒</size>\nTÚI ĐỒ";
-        txt.fontSize = 11f;
-        txt.fontStyle = FontStyles.Bold;
-        txt.alignment = TextAlignmentOptions.Center;
-        txt.color = Color.white;
+        // Thêm viền bo vàng mỏng sang trọng
+        Outline bgOutline = bgObj.AddComponent<Outline>();
+        bgOutline.effectColor = new Color(1f, 0.84f, 0f, 0.4f); // Vàng kim nhẹ
+        bgOutline.effectDistance = new Vector2(1f, -1f);
 
-        RectTransform textRect = textObj.GetComponent<RectTransform>();
-        textRect.anchorMin = Vector2.zero;
-        textRect.anchorMax = Vector2.one;
-        textRect.sizeDelta = Vector2.zero;
+        // 2. Tạo cụm icon chiếc túi 3D giả lập bằng UI cực kỳ xịn mịn (cỡ nhỏ 26x26)
+        GameObject iconContainer = new GameObject("IconContainer", typeof(RectTransform));
+        iconContainer.transform.SetParent(_bagButton.transform, false);
+        RectTransform iconRect = iconContainer.GetComponent<RectTransform>();
+        iconRect.anchorMin = new Vector2(0.5f, 0.5f);
+        iconRect.anchorMax = new Vector2(0.5f, 0.5f);
+        iconRect.sizeDelta = new Vector2(26f, 26f);
+        iconRect.anchoredPosition = Vector2.zero;
 
+        // Quai xách túi (Handle)
+        GameObject handle = new GameObject("Handle", typeof(RectTransform));
+        handle.transform.SetParent(iconContainer.transform, false);
+        Image handleImg = handle.AddComponent<Image>();
+        handleImg.color = new Color(0.48f, 0.31f, 0.22f, 1f); // Nâu sẫm da
+        handleImg.raycastTarget = false;
+        RectTransform handleRect = handle.GetComponent<RectTransform>();
+        handleRect.anchorMin = new Vector2(0.5f, 1f);
+        handleRect.anchorMax = new Vector2(0.5f, 1f);
+        handleRect.pivot = new Vector2(0.5f, 1f);
+        handleRect.anchoredPosition = new Vector2(0f, 0f);
+        handleRect.sizeDelta = new Vector2(10f, 4f);
+
+        // Thân túi (Body)
+        GameObject body = new GameObject("Body", typeof(RectTransform));
+        body.transform.SetParent(iconContainer.transform, false);
+        Image bodyImg = body.AddComponent<Image>();
+        bodyImg.color = new Color(0.68f, 0.46f, 0.32f, 1f); // Nâu da sáng
+        bodyImg.raycastTarget = false;
+        RectTransform bodyRect = body.GetComponent<RectTransform>();
+        bodyRect.anchorMin = new Vector2(0.5f, 0.5f);
+        bodyRect.anchorMax = new Vector2(0.5f, 0.5f);
+        bodyRect.pivot = new Vector2(0.5f, 0.5f);
+        bodyRect.anchoredPosition = new Vector2(0f, -2.5f);
+        bodyRect.sizeDelta = new Vector2(22f, 17f);
+
+        // Nắp túi (Flap)
+        GameObject flap = new GameObject("Flap", typeof(RectTransform));
+        flap.transform.SetParent(iconContainer.transform, false);
+        Image flapImg = flap.AddComponent<Image>();
+        flapImg.color = new Color(0.48f, 0.31f, 0.22f, 1f); // Nâu da sẫm
+        flapImg.raycastTarget = false;
+        RectTransform flapRect = flap.GetComponent<RectTransform>();
+        flapRect.anchorMin = new Vector2(0.5f, 0.5f);
+        flapRect.anchorMax = new Vector2(0.5f, 0.5f);
+        flapRect.pivot = new Vector2(0.5f, 1f);
+        flapRect.anchoredPosition = new Vector2(0f, 7f);
+        flapRect.sizeDelta = new Vector2(22f, 7f);
+
+        // Đai da bên trái (Left Strap)
+        GameObject strapL = new GameObject("StrapL", typeof(RectTransform));
+        strapL.transform.SetParent(iconContainer.transform, false);
+        Image strapLImg = strapL.AddComponent<Image>();
+        strapLImg.color = new Color(0.35f, 0.22f, 0.15f, 1f); // Nâu đen
+        strapLImg.raycastTarget = false;
+        RectTransform strapLRect = strapL.GetComponent<RectTransform>();
+        strapLRect.anchorMin = new Vector2(0.5f, 0.5f);
+        strapLRect.anchorMax = new Vector2(0.5f, 0.5f);
+        strapLRect.anchoredPosition = new Vector2(-6f, -2.5f);
+        strapLRect.sizeDelta = new Vector2(2f, 17f);
+
+        // Đai da bên phải (Right Strap)
+        GameObject strapR = new GameObject("StrapR", typeof(RectTransform));
+        strapR.transform.SetParent(iconContainer.transform, false);
+        Image strapRImg = strapR.AddComponent<Image>();
+        strapRImg.color = new Color(0.35f, 0.22f, 0.15f, 1f);
+        strapRImg.raycastTarget = false;
+        RectTransform strapRRect = strapR.GetComponent<RectTransform>();
+        strapRRect.anchorMin = new Vector2(0.5f, 0.5f);
+        strapRRect.anchorMax = new Vector2(0.5f, 0.5f);
+        strapRRect.anchoredPosition = new Vector2(6f, -2.5f);
+        strapRRect.sizeDelta = new Vector2(2f, 17f);
+
+        // Khóa kim loại ở giữa (Gold Lock)
+        GameObject lockObj = new GameObject("Lock", typeof(RectTransform));
+        lockObj.transform.SetParent(iconContainer.transform, false);
+        Image lockImg = lockObj.AddComponent<Image>();
+        lockImg.color = new Color(1f, 0.84f, 0f, 1f); // Vàng kim sáng
+        lockImg.raycastTarget = false;
+        RectTransform lockRect = lockObj.GetComponent<RectTransform>();
+        lockRect.anchorMin = new Vector2(0.5f, 0.5f);
+        lockRect.anchorMax = new Vector2(0.5f, 0.5f);
+        lockRect.pivot = new Vector2(0.5f, 0.5f);
+        lockRect.anchoredPosition = new Vector2(0f, -1f);
+        lockRect.sizeDelta = new Vector2(4f, 4f);
+
+        // 3. Cấu hình Button tương tác
         Button button = _bagButton.AddComponent<Button>();
         button.onClick.AddListener(ToggleInventory);
-        
+        button.targetGraphic = bgImg; // Trỏ phản hồi màu sắc vào phần nền phát quang
+
         ColorBlock colors = button.colors;
-        colors.normalColor = new Color(0.12f, 0.12f, 0.16f, 0.9f);
-        colors.highlightedColor = new Color(0.22f, 0.22f, 0.3f, 0.95f);
-        colors.pressedColor = new Color(0.08f, 0.08f, 0.1f, 1f);
+        colors.normalColor = new Color(0.12f, 0.12f, 0.16f, 0.6f);
+        colors.highlightedColor = new Color(1f, 0.84f, 0f, 0.25f); // Phát sáng vàng khi rê chuột qua
+        colors.pressedColor = new Color(1f, 0.84f, 0f, 0.45f); // Nháy sáng vàng khi bấm
+        colors.selectedColor = new Color(0.12f, 0.12f, 0.16f, 0.6f);
         button.colors = colors;
     }
 
@@ -245,6 +339,7 @@ public class InventoryUI : MonoBehaviour
         _tinText = CreateInventoryRow(contentObj, "⚪ Thiếc (Tin):", "0");
         _turtleShellText = CreateInventoryRow(contentObj, "🐢 Mai Linh Quy (Shell):", "0");
         _bronzeIngotText = CreateInventoryRow(contentObj, "⭐ Thỏi Đồng Thau (Bronze):", "0");
+        _spiritualStoneText = CreateInventoryRow(contentObj, "💎 Đá Linh Khí (Stone):", "0");
         _weaponText = CreateInventoryRow(contentObj, "⚔️ Vũ khí hiện tại:", "Không có");
 
         // Nút Đóng
@@ -335,6 +430,8 @@ public class InventoryUI : MonoBehaviour
             _tinText = content.Find("Row_Row_⚪ Thiếc (Tin)")?.Find("Value")?.GetComponent<TextMeshProUGUI>();
             _turtleShellText = content.Find("Row_Row_🐢 Mai Linh Quy (Shell)")?.Find("Value")?.GetComponent<TextMeshProUGUI>();
             _bronzeIngotText = content.Find("Row_Row_⭐ Thỏi Đồng Thau (Bronze)")?.Find("Value")?.GetComponent<TextMeshProUGUI>();
+            _spiritualStoneText = content.Find("Row_Row_💎 Đá Linh Khí (Stone)")?.Find("Value")?.GetComponent<TextMeshProUGUI>() ??
+                                  content.Find("Row_💎 Đá Linh Khí (Stone)")?.Find("Value")?.GetComponent<TextMeshProUGUI>();
             _weaponText = content.Find("Row_Row_⚔️ Vũ khí hiện tại")?.Find("Value")?.GetComponent<TextMeshProUGUI>();
         }
     }
@@ -372,6 +469,7 @@ public class InventoryUI : MonoBehaviour
             if (_tinText != null) _tinText.text = _stats.tinCount.ToString();
             if (_turtleShellText != null) _turtleShellText.text = _stats.turtleShell.ToString();
             if (_bronzeIngotText != null) _bronzeIngotText.text = _stats.bronzeIngot.ToString();
+            if (_spiritualStoneText != null) _spiritualStoneText.text = _stats.spiritualStone.ToString();
         }
 
         if (_playerMovement != null)

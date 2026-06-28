@@ -18,6 +18,9 @@ public class CameraMovement : MonoBehaviour
     {
         if (_controller == null) return;
 
+        // Chỉ xoay camera khi con trỏ chuột bị khóa (đang chơi game bình thường)
+        if (Cursor.lockState != CursorLockMode.Locked) return;
+
         // Get mouse inputs
         float mouseX = Input.GetAxis("Mouse X") * _mouseSensity;
         float mouseY = Input.GetAxis("Mouse Y") * _mouseSensity;

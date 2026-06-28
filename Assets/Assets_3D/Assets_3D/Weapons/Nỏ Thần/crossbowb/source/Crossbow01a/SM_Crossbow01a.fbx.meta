@@ -1,39 +1,9 @@
 fileFormatVersion: 2
-guid: 532f5adac47dbda479ac5746adbe70bf
+guid: 2e2e7972801b6124d8fe212a4d0cabf8
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: tripo_mat_f674688d
-    second: {fileID: 2100000, guid: ddcffe28f25f7424b8711fb2c439a5cd, type: 2}
-  - first:
-      type: UnityEngine:Texture2D
-      assembly: UnityEngine.CoreModule
-      name: "Th\u1EE3R\xE8nC\u1ED5Loa_basecolor"
-    second: {fileID: 2800000, guid: 2eacacf3c6016714594b864d7f16df3b, type: 3}
-  - first:
-      type: UnityEngine:Texture2D
-      assembly: UnityEngine.CoreModule
-      name: "Th\u1EE3R\xE8nC\u1ED5Loa_metallic"
-    second: {fileID: 2800000, guid: 8ffe8eaad21aa0c4fad722a95ae368f1, type: 3}
-  - first:
-      type: UnityEngine:Texture2D
-      assembly: UnityEngine.CoreModule
-      name: "Th\u1EE3R\xE8nC\u1ED5Loa_normal"
-    second: {fileID: 2800000, guid: a130e017bbc08084faf2e6f8683f2b16, type: 3}
-  - first:
-      type: UnityEngine:Texture2D
-      assembly: UnityEngine.CoreModule
-      name: "Th\u1EE3R\xE8nC\u1ED5Loa_rm"
-    second: {fileID: 2800000, guid: 7c3b7ac4f55a0a04d9c3c23484e006a6, type: 3}
-  - first:
-      type: UnityEngine:Texture2D
-      assembly: UnityEngine.CoreModule
-      name: "Th\u1EE3R\xE8nC\u1ED5Loa_roughness"
-    second: {fileID: 2800000, guid: 04c7e90cd62ba9a468c8c5ad1f3d74ba, type: 3}
+  externalObjects: {}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -52,7 +22,7 @@ ModelImporter:
     animationDoRetargetingWarnings: 0
     importAnimatedCustomProperties: 0
     importConstraints: 0
-    animationCompression: 3
+    animationCompression: 1
     animationRotationError: 0.5
     animationPositionError: 0.5
     animationScaleError: 0.5
@@ -124,13 +94,13 @@ ModelImporter:
     globalScale: 1
     rootMotionBoneName: 
     hasTranslationDoF: 0
-    hasExtraRoot: 1
+    hasExtraRoot: 0
     skeletonHasParents: 1
   lastHumanDescriptionAvatarSource: {instanceID: 0}
   autoGenerateAvatarMappingIfUnspecified: 1
-  animationType: 3
+  animationType: 2
   humanoidOversampling: 1
-  avatarSetup: 1
+  avatarSetup: 0
   addHumanoidExtraRootOnlyWhenUsingAvatar: 1
   importBlendShapeDeformPercent: 1
   remapMaterialsIfMaterialImportModeIsNone: 0
